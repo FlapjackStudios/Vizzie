@@ -1,0 +1,851 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+    --bg-color: #121212;
+    --primary-color: #1DB954;
+    --secondary-color: #282828;
+    --text-color: #ffffff;
+    --text-muted-color: #b3b3b3;
+    --border-color: #404040;
+
+    /* Gold Theme Colors */
+    --gold-dark: #8B7340;
+    --gold-medium: #D4AF37;
+    --gold-light: #FFD700;
+    --gold-highlight: #FFFACD;
+
+    /* Rainbow Theme Variables (used for animations) */
+    --rainbow-animation-duration: 10s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column; 
+    height: 100vh; 
+    overflow: hidden; 
+    position: relative; 
+}
+
+/* Position the menu button in the top right corner */
+.menu-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    z-index: 20;
+}
+
+.menu-button:hover {
+    color: var(--primary-color);
+}
+
+/* Original #app-container becomes #app-wrapper, fills remaining vertical space */
+#app-wrapper {
+    display: flex;
+    width: 100%;
+    flex: 1; /* Make it fill remaining vertical space of the body */
+    height: 100%;
+    overflow: hidden;
+}
+
+#player-section {
+    flex: 2;
+    min-width: 450px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--secondary-color);
+    position: relative;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 0; /* Important for flex items to prevent content from forcing height */
+}
+
+#visualizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Set to background layer */
+    display: none; /* Hidden by default */
+}
+
+/* Remove absolute positioning for current-track-info as it moves into controls */
+#current-track-info {
+    text-align: left; /* Align text to the left */
+    padding: 0; /* Remove specific padding as parent #controls handles it */
+    background-color: transparent; /* Remove background */
+    backdrop-filter: none; /* Remove blur */
+    border-radius: 0; /* Remove border-radius */
+    box-shadow: none; /* Remove shadow */
+    max-width: unset; /* Remove max-width constraint */
+    flex-grow: 1; /* Allow it to take up available space */
+}
+
+#current-track-title {
+    font-size: 1.5em; /* Slightly smaller to fit better */
+    font-weight: 700;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+}
+
+/* New styles for artist name and visualizer controls row */
+#artist-and-visualizer-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between artist and visualizer controls */
+}
+
+#current-track-artist {
+    font-size: 1em; /* Slightly smaller to fit better */
+    color: var(--text-muted-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1; /* Allow artist name to shrink */
+    min-width: 0; /* Allow text-overflow ellipsis to work */
+}
+
+#visualizer-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0; /* Prevent controls from shrinking */
+    background-color: rgba(0,0,0,0.2); /* Slight background for readability */
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+#visualizer-controls button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1em; /* Smaller icons for visualizer controls */
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0 3px; /* Smaller padding for compact buttons */
+}
+
+#visualizer-controls button:hover {
+    color: var(--primary-color);
+}
+
+/* Style for the visualizer type icon */
+#visualizer-type-display {
+    font-size: 1.1em; /* Slightly larger icon */
+    color: var(--text-color); /* Make icon white */
+    white-space: nowrap;
+    width: 25px; /* Fixed width to prevent jumping when icon changes */
+    text-align: center;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px; /* Increased padding to give blur some space */
+    width: 100%; /* Ensure controls take full width */
+    z-index: 1; /* Ensure controls are above visualizer */
+    background-color: rgba(0, 0, 0, 0.4); /* Translucent background */
+    backdrop-filter: blur(8px); /* Apply blur effect */
+    border-radius: 20px; /* Increased rounding for softer look */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: all 0.3s ease-out; /* Add transition for size/position changes */
+}
+
+#progress-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#progress-bar {
+    flex-grow: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 16px; /* Increased height to match thumb and address "too skinny" */
+    outline: none;
+    border-radius: 50px; /* Pill-shaped track */
+    background-color: transparent; 
+}
+
+#progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0; /* Removed the dot */
+    height: 0; /* Removed the dot */
+    background: transparent; /* Make it transparent */
+    border: none; /* Ensure no border is visible */
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+#progress-bar::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--primary-color) var(--progress-fill-percentage), #4d4d4d var(--progress-fill-percentage));
+    border-radius: 50px; /* Ensure pill-shaped */
+    height: 16px; /* Matched thumb height for better alignment and thicker appearance */
+}
+
+#progress-bar::-moz-range-track {
+    background: linear-gradient(to right, var(--primary-color) var(--progress-fill-percentage), #4d4d4d var(--progress-fill-percentage));
+    border-radius: 50px; /* Ensure pill-shaped */
+    height: 16px; /* Matched thumb height for better alignment and thicker appearance */
+}
+
+/* New container for track info and buttons */
+#bottom-controls-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px; /* Space between track info and buttons */
+}
+
+#buttons-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+#controls button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#controls button:hover {
+    color: var(--primary-color);
+}
+
+#play-pause-btn {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--text-color);
+    border-radius: 50%;
+}
+#play-pause-btn:hover {
+    border-color: var(--primary-color);
+}
+
+
+#volume-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#volume-slider {
+     -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 12px; /* Increased height to match thumb and address "too skinny" */
+    outline: none;
+    border-radius: 50px; /* Pill-shaped track */
+    background-color: transparent; /* Make input itself transparent */
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0; /* Removed the dot */
+    height: 0; /* Removed the dot */
+    background: transparent; /* Make it transparent */
+    border: none; /* Ensure no border is visible */
+    cursor: pointer;
+    border-radius: 50%;
+}
+#volume-slider::-webkit-slider-thumb:hover {
+    background: transparent;
+}
+
+#volume-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--primary-color) var(--volume-fill-percentage), #4d4d4d var(--volume-fill-percentage));
+    border-radius: 50px; /* Ensure pill-shaped */
+    height: 12px; /* Matched thumb height for better alignment and thicker appearance */
+}
+
+#volume-slider::-moz-range-track {
+    background: linear-gradient(to right, var(--primary-color) var(--volume-fill-percentage), #4d4d4d var(--volume-fill-percentage));
+    border-radius: 50px; /* Ensure pill-shaped */
+    height: 12px; /* Matched thumb height for better alignment and thicker appearance */
+}
+
+/* Playlist Section */
+#add-track-container {
+    margin-bottom: 20px;
+}
+#add-track-container h3 {
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.add-controls {
+    margin-bottom: 15px; /* Space between upload button and clear playlist button */
+    display: flex; /* Make buttons arrange horizontally */
+    gap: 10px; /* Space between the two upload buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap to the next line if not enough space */
+    justify-content: space-between; /* Distribute space evenly */
+}
+
+/* Consolidated button styles for file label and clear playlist button */
+/* Separated .file-label and #clear-playlist-btn for individual margin/width control */
+.file-label { 
+    padding: 10px 15px;
+    background-color: var(--primary-color); 
+    color: var(--text-color);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: normal; /* Allow text to wrap inside the button */
+    text-align: center; /* Center the text if it wraps */
+
+    /* Add flex properties for centering and alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content horizontally */
+    width: calc(50% - 5px); /* Take half the width minus gap for two-column layout */
+    min-height: 40px; /* Ensure a minimum height for the buttons */
+}
+.file-label:hover { 
+    opacity: 0.9;
+}
+
+/* Specific styles for clear playlist button, now a block element beneath */
+#clear-playlist-btn {
+    padding: 10px 15px;
+    background-color: #c0392b; /* Keep red for clear button */
+    color: var(--text-color);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+    
+    display: flex; /* Keep flex for centering content inside the button */
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Make it take full width */
+    margin-top: 10px; /* Space above the clear button */
+}
+#clear-playlist-btn:hover { 
+    opacity: 0.9;
+}
+
+/* Styling for icons within these buttons */
+.file-label i {
+    margin-right: 8px; /* Space between icon and text for the upload button */
+    font-size: 1.1em; /* Make icons slightly larger for better visibility */
+}
+
+#clear-playlist-btn i {
+    margin-right: 8px; /* Add margin-right for consistency with text */
+    font-size: 1.1em; /* Match icon size for the trash can */
+}
+
+#file-input,
+#folder-input { /* Apply display none to both file and folder inputs */
+    display: none;
+}
+
+#playlist {
+    list-style: none;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+#playlist::-webkit-scrollbar {
+    width: 8px;
+}
+#playlist::-webkit-scrollbar-track {
+    background: var(--secondary-color);
+}
+#playlist::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+#playlist li {
+    padding: 12px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 10px; /* Increased rounding for list items */
+    transition: background-color 0.2s;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#playlist li:hover {
+    background-color: rgba(255,215,0,0.1); /* Lighter hover for playlist items */
+}
+
+#playlist li.playing {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+#playlist .track-name {
+    max-width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#playlist .delete-track-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted-color);
+    cursor: pointer;
+    font-size: 1rem;
+}
+#playlist .delete-track-btn:hover {
+    color: #e74c3c;
+}
+#playlist li.playing .delete-track-btn {
+    color: #fff;
+}
+
+/* Playlist section becomes toggleable */
+#playlist-section {
+    flex: 0 0 0;
+    min-width: 0;
+    max-width: 0;
+    background-color: rgba(0,0,0,0.2);
+    padding: 30px 0;
+    display: flex;
+    flex-direction: column;
+    transition: flex 0.3s ease-out, min-width 0.3s ease-out, max-width 0.3s ease-out, padding 0.3s ease-out;
+    min-height: 0; /* Important for flex items to prevent content from forcing height */
+}
+
+/* State when playlist is open */
+#app-wrapper.playlist-open #playlist-section {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 30px;
+    overflow-y: hidden; /* Only the tab-content should scroll */
+}
+
+/* New styles for tabs */
+#playlist-section #tab-buttons {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-muted-color);
+    transition: color 0.2s, border-bottom 0.2s;
+    flex-grow: 1; /* Make buttons expand to fill space */
+    text-align: center;
+}
+
+.tab-button:hover {
+    color: var(--text-color);
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.tab-content {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    flex-grow: 1; /* Allow content to grow */
+    overflow-y: auto; /* Allow content to scroll */
+}
+
+.tab-content.active {
+    display: flex; /* Show active tab content */
+}
+
+/* Customization Tab Styles */
+.customization-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.customization-options button {
+    background-color: var(--primary-color); /* Use primary color for theme buttons */
+    color: var(--text-color);
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+    flex-grow: 1; /* Allow buttons to grow */
+    min-width: fit-content; /* Ensure text fits */
+}
+
+.customization-options button:hover {
+    opacity: 0.9;
+}
+
+.color-pickers {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* New CSS to disable color pickers */
+.color-pickers.disabled-pickers {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.color-pickers h4,
+.control-display-options h4 { /* Apply to new controls section too */
+    margin-bottom: 5px;
+    color: var(--text-muted-color);
+}
+
+.color-picker-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.color-picker-group label {
+    flex-grow: 1;
+}
+
+.color-picker-group input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+
+.color-picker-group input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker-group input[type="color"]::-webkit-color-swatch {
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.color-picker-group input[type="color"]::-moz-color-swatch {
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+}
+
+/* New section for control display options */
+.control-display-options {
+    margin-top: 20px; /* Space above this section */
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+.control-display-options .customization-options { /* Reuse styles for buttons within this section */
+    margin-bottom: 0; /* No extra margin after buttons */
+}
+
+
+/* --- Theme specific styles (applied to body class) --- */
+
+/* Gold Theme */
+body.gold-theme {
+    /* Override primary and text colors to gold shades */
+    --primary-color: var(--gold-light);
+    --text-color: var(--gold-highlight); 
+    --text-muted-color: var(--gold-medium); /* Muted text becomes medium gold */
+    --border-color: var(--gold-dark); /* Borders become dark gold */
+
+    /* Gold Gradient Shines */
+    --gold-shine-gradient: linear-gradient(90deg, var(--gold-medium) 0%, var(--gold-light) 25%, var(--gold-highlight) 50%, var(--gold-light) 75%, var(--gold-medium) 100%);
+    --gold-shine-gradient-dark: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-medium) 25%, var(--gold-light) 50%, var(--gold-medium) 75%, var(--gold-dark) 100%);
+}
+
+/* White shading highlight for text and icons that become bright gold */
+body.gold-theme #current-track-title,
+body.gold-theme #visualizer-type-display,
+body.gold-theme #controls button,
+body.gold-theme #visualizer-controls button,
+body.gold-theme .menu-button,
+body.gold-theme #play-pause-btn i, /* Target the icon inside */
+body.gold-theme #playlist li.playing .track-name,
+body.gold-theme #playlist li.playing .delete-track-btn,
+body.gold-theme #volume-container i, /* Volume icon */
+body.gold-theme #current-time,
+body.gold-theme #total-duration, /* Time displays */
+body.gold-theme #minimized-time-display, /* Apply to new minimized time display */
+body.gold-theme .tab-button.active /* Active tab button text */
+{
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6); /* Subtle white glow for text/icons */
+}
+
+/* Ensure hover states also have the highlight */
+body.gold-theme .menu-button:hover,
+body.gold-theme #controls button:hover,
+body.gold-theme #visualizer-controls button:hover {
+    color: var(--gold-highlight); /* Ensure it's bright gold on hover */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8); /* Stronger white glow on hover */
+}
+
+body.gold-theme #play-pause-btn {
+    border-color: var(--gold-medium); /* Change border for play/pause */
+    box-shadow: 0 0 15px 3px rgba(255, 255, 255, 0.5); /* Larger white shine for play/pause button */
+}
+body.gold-theme #play-pause-btn:hover {
+    border-color: var(--gold-light); /* Hover border color */
+    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7); /* Even larger white shine on hover */
+}
+
+body.gold-theme #playlist li:hover {
+    background-color: rgba(255,215,0,0.1); /* Lighter hover for playlist items */
+}
+
+body.gold-theme #playlist li.playing {
+    background: var(--gold-shine-gradient); /* Apply gold gradient */
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.4); /* White highlight for playing item background */
+}
+
+body.gold-theme #playlist .delete-track-btn {
+    color: var(--gold-dark); /* Trash icon color */
+}
+body.gold-theme #playlist .delete-track-btn:hover {
+    color: var(--gold-light); /* Darker gold for trash hover */
+}
+
+body.gold-theme .file-label,
+body.gold-theme .customization-options button {
+    background: var(--gold-shine-gradient); /* Apply gold gradient */
+    color: var(--text-color); /* Ensure text is readable */
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.4); /* Subtle white glow */
+}
+body.gold-theme .file-label:hover,
+body.gold-theme .customization-options button:hover {
+    opacity: 1; /* No opacity change on hover, use color shift */
+    box-shadow: 0 0 12px 3px rgba(255, 255, 255, 0.6); /* Stronger white glow on hover */
+}
+
+body.gold-theme #clear-playlist-btn {
+    background: var(--gold-shine-gradient-dark); /* Apply darker gold gradient */
+    color: var(--text-color); /* Ensure text is readable */
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.3); /* Subtle white glow */
+}
+body.gold-theme #clear-playlist-btn:hover {
+    opacity: 1;
+    box-shadow: 0 0 12px 3px rgba(255, 255, 255, 0.5); /* Stronger white glow on hover */
+}
+
+body.gold-theme .tab-button.active {
+    color: var(--gold-light);
+    border-color: var(--gold-light);
+    /* text-shadow handled by combined rule above */
+}
+
+/* Add shine to progress and volume bar fills in gold mode */
+body.gold-theme #progress-bar::-webkit-slider-runnable-track,
+body.gold-theme #progress-bar::-moz-range-track {
+    background-image: var(--gold-shine-gradient), linear-gradient(to right, #4d4d4d, #4d4d4d);
+    background-size: var(--progress-fill-percentage) 100%, calc(100% - var(--progress-fill-percentage)) 100%;
+    background-position: left center, right center;
+    background-repeat: no-repeat;
+    box-shadow: inset 0 0 8px 1px rgba(255, 255, 255, 0.5); /* Inner white shadow for fill */
+}
+
+body.gold-theme #volume-slider::-webkit-slider-runnable-track,
+body.gold-theme #volume-slider::-moz-range-track {
+    background-image: var(--gold-shine-gradient), linear-gradient(to right, #4d4d4d, #4d4d4d);
+    background-size: var(--volume-fill-percentage) 100%, calc(100% - var(--volume-fill-percentage)) 100%;
+    background-position: left center, right center;
+    background-repeat: no-repeat;
+    box-shadow: inset 0 0 8px 1px rgba(255, 255, 255, 0.5); /* Inner white shadow for fill */
+}
+
+/* Rainbow Theme */
+@keyframes rainbow-hue-rotate {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+body.rainbow-theme {
+    /* Use hue-rotate animation for smooth color transitions */
+    animation: rainbow-hue-rotate var(--rainbow-animation-duration) linear infinite;
+}
+
+/* Reset progress bars and visualizer for rainbow theme to use default primary color */
+body.rainbow-theme #progress-bar::-webkit-slider-runnable-track,
+body.rainbow-theme #progress-bar::-moz-range-track,
+body.rainbow-theme #volume-slider::-webkit-slider-runnable-track,
+body.rainbow-theme #volume-slider::-moz-range-track {
+    background: linear-gradient(to right, var(--primary-color) var(--progress-fill-percentage), #4d4d4d var(--progress-fill-percentage));
+}
+
+body.rainbow-theme #playlist li.playing {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+body.rainbow-theme .file-label,
+body.rainbow-theme .customization-options button,
+body.rainbow-theme #clear-playlist-btn {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+/* For elements that get --primary-color as their text/icon color */
+body.rainbow-theme .menu-button:hover,
+body.rainbow-theme #controls button:hover,
+body.rainbow-theme #visualizer-controls button:hover,
+body.rainbow-theme #playlist li.playing .track-name,
+body.rainbow-theme #playlist li.playing .delete-track-btn {
+    color: var(--primary-color);
+}
+
+body.rainbow-theme .tab-button.active {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+}
+
+/* Visualizer now naturally changes color because its drawing color (primary-color) is animated */
+body.rainbow-theme #visualizer {
+    animation: none; /* Remove existing hue-rotate, rely on primary-color animation */
+}
+
+/* --- Control Display Modes --- */
+
+/* Minimized Controls State */
+#controls.minimized-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: auto;
+    min-width: 250px; /* Minimum width for track info + time */
+    max-width: 400px; /* Constrain width */
+    padding: 15px;
+    flex-direction: row; /* Change to row layout */
+    align-items: center;
+    justify-content: flex-start; /* Align content to the start */
+    border-radius: 15px; /* Slightly less rounded for smaller box */
+    gap: 15px; /* Add gap between elements if needed */
+}
+
+#controls.minimized-controls #progress-container {
+    display: none; /* Hide the original progress bar and time elements */
+}
+/* New rule to hide buttons container in minimized mode */
+#controls.minimized-controls #buttons-container {
+    display: none;
+}
+
+#controls.minimized-controls #bottom-controls-row {
+    flex-grow: 1; /* Allow it to take up space for track info */
+    width: auto;
+    flex-direction: column; /* Stack song title and artist/time row */
+    align-items: flex-start; /* Align content to the left */
+    justify-content: flex-start;
+    gap: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#controls.minimized-controls #current-track-info {
+    flex-grow: 1;
+    max-width: unset;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#controls.minimized-controls #current-track-title {
+    font-size: 1.2em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#controls.minimized-controls #artist-and-visualizer-controls {
+    flex-direction: row; /* Keep artist and new time display in a row */
+    align-items: center;
+    gap: 5px; /* Small gap between artist and time */
+    min-width: 0; /* Allow content to shrink */
+}
+
+#controls.minimized-controls #current-track-artist {
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0; /* Important for ellipsis */
+}
+
+/* NEW: Style for the minimized time display */
+#minimized-time-display {
+    display: none; /* Hidden by default */
+    font-size: 0.9em; /* Match artist font size */
+    color: var(--text-muted-color); /* Muted color like artist */
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent from shrinking */
+}
+
+#controls.minimized-controls #minimized-time-display {
+    display: inline; /* Show when minimized */
+}
+
+
+#controls.minimized-controls #visualizer-controls {
+    display: none; /* Hide these */
+}
+
+/* Hidden Controls State */
+#controls.hidden-controls {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(100%); /* Move it out of view downwards */
+    /* Transition applied by #controls rule */
+}

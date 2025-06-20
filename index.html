@@ -1,0 +1,109 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Music Streamer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <button id="toggle-playlist-btn" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div id="app-wrapper">
+        <div id="player-section">
+            <canvas id="visualizer"></canvas>
+            <div id="controls">
+                <div id="progress-container">
+                    <span id="current-time">0:00</span>
+                    <input type="range" id="progress-bar" value="0" step="1">
+                    <span id="total-duration">0:00</span>
+                </div>
+                <div id="bottom-controls-row">
+                    <div id="current-track-info">
+                        <div id="current-track-title">No track selected</div>
+                        <div id="artist-and-visualizer-controls">
+                            <div id="current-track-artist"></div>
+                            <div id="visualizer-controls">
+                                <button id="prev-visualizer-btn"><i class="fas fa-chevron-left"></i></button>
+                                <span id="visualizer-type-display"></span>
+                                <button id="next-visualizer-btn"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            <!-- New element for minimized time display -->
+                            <span id="minimized-time-display"></span> 
+                        </div>
+                    </div>
+                    <div id="buttons-container">
+                        <button id="playback-mode-btn" title="Playback Mode"><i class="fas fa-redo-alt"></i></button>
+                        <button id="prev-btn"><i class="fas fa-step-backward"></i></button>
+                        <button id="play-pause-btn"><i class="fas fa-play"></i></button>
+                        <button id="next-btn"><i class="fas fa-step-forward"></i></button>
+                        <div id="volume-container">
+                            <i class="fas fa-volume-down"></i>
+                            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="playlist-section">
+            <div id="tab-buttons">
+                <button id="add-track-tab-btn" class="tab-button active">Add to Playlist</button>
+                <button id="customization-tab-btn" class="tab-button">Customization</button>
+            </div>
+            <div id="add-track-content" class="tab-content active">
+                <div id="add-track-container">
+                    <h3>Add to Playlist</h3>
+                    <div class="add-controls">
+                        <label for="file-input" class="file-label">
+                            <i class="fas fa-music"></i> Upload Files
+                        </label>
+                        <input type="file" id="file-input" accept="audio/*" multiple>
+
+                        <label for="folder-input" class="file-label">
+                            <i class="fas fa-folder"></i> Upload Folder
+                        </label>
+                        <input type="file" id="folder-input" webkitdirectory directory multiple>
+                    </div>
+                    <button id="clear-playlist-btn"><i class="fas fa-trash"></i> Clear Playlist</button>
+                </div>
+                <ul id="playlist"></ul>
+            </div>
+            <div id="customization-content" class="tab-content">
+                <h3>Customize Appearance</h3>
+                <div class="customization-options">
+                    <button id="gold-mode-btn" class="theme-button">Gold Theme</button>
+                    <button id="rainbow-mode-btn" class="theme-button">Rainbow Mode</button>
+                    <button id="reset-theme-btn" class="theme-button">Reset Colors</button>
+                </div>
+                <div class="color-pickers">
+                    <h4>Custom Colors:</h4>
+                    <div class="color-picker-group">
+                        <label for="primary-color-picker">Green Elements:</label>
+                        <input type="color" id="primary-color-picker" value="#1DB954">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="text-color-picker">White Elements:</label>
+                        <input type="color" id="text-color-picker" value="#ffffff">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="background-color-picker">Background Elements:</label>
+                        <input type="color" id="background-color-picker" value="#121212">
+                    </div>
+                </div>
+                <div class="control-display-options">
+                    <h4>Control Display:</h4>
+                    <div class="customization-options">
+                        <button id="normal-controls-btn" class="theme-button">Normal Controls</button>
+                        <button id="min-controls-btn" class="theme-button">Minimize Controls</button>
+                        <button id="hide-controls-btn" class="theme-button">Hide Controls</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
